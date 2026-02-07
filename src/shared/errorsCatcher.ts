@@ -1,4 +1,4 @@
-import { detailsErrors, ErrorResponse } from '../interface/error.interface';
+import { DetailsErrors, ErrorResponse } from '../interface/error.interface';
 import { ALLOWED_fIELDS, INVALID_TYPE_FIELD_MESSAGE, EXPECTED_STRING_MESSAGE, EXPECTED_NUMBER_MESSAGE, SOME_INVALID_FIELD_MESSAGE, UNEXPECTED_KEY_MESSAGE, EMPTY_FIELD_MESSAGE} from '../constants/courses';
 import { CourseErrorEnum } from '../enums/course.enum';
 /**
@@ -33,8 +33,8 @@ export class ErrorsCatcher {
    * @param objectToValidate The object to validate against the Course interface.
    * @returns An array of ErrorResponse objects for any type mismatches found.
    */
-  private courseTypeAnalicer(objectToValidate: any): Array<detailsErrors> {
-    const catchhedErrors: Array<detailsErrors> = [];
+  private courseTypeAnalicer(objectToValidate: any): Array<DetailsErrors> {
+    const catchhedErrors: Array<DetailsErrors> = [];
 
     for (const key in objectToValidate) {
         if (!ALLOWED_fIELDS.includes(key)) {
@@ -83,30 +83,6 @@ export class ErrorsCatcher {
                     issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_NUMBER_MESSAGE}`,
                     value,
                   });
-                }
-                break;
-            case 'completedAt':
-                if (typeof objectToValidate[key] !== 'string') {
-                  catchhedErrors.push({
-                    field: key,
-                    issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
-                    value,
-                  });
-                }
-                break;
-            case 'certificateUrl':
-                if (typeof objectToValidate[key] !== 'string') {
-                    catchhedErrors.push({
-                        field: key,
-                        issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
-                        value,
-                    });
-                } else if (objectToValidate[key].trim().length === 0) {
-                    catchhedErrors.push({
-                        field: key,
-                        issue: EMPTY_FIELD_MESSAGE,
-                        value,
-                    });
                 }
                 break;
             case 'level':
