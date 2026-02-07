@@ -1,4 +1,4 @@
-export const ALLOWED_fIELDS = ['name', 'company', 'hours', 'completedAt', 'certificateUrl'];
+export const ALLOWED_fIELDS = ['name', 'company', 'hours', 'level'];
 export const COURSE_LEVELS = {
     BEGINNER: 'beginner',
     INTERMEDIATE: 'intermediate',
@@ -10,6 +10,8 @@ export const COURSE_STATUS = {
     DRAFT: 'draft',
 } as const;
 export const COURSE_NOT_FOUND_MESSAGE = 'Course not found.';
+export const COURSEs_NOT_FOUND_MESSAGE = 'No courses found with the given param.';
+export const COURSE_ALREADY_EXISTS_MESSAGE = 'Course with the same name already exists.';
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_TIMEOUT = 5000;
 export const EMPTY_FIELD_MESSAGE = 'cannot be empty.';

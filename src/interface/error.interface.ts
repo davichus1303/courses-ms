@@ -1,10 +1,10 @@
 export interface ErrorResponse {
   status: number;
   message: string;
-  details?: Array<detailsErrors>;
+  details?: Array<DetailsErrors>;
 }
 
-export interface detailsErrors {
+export interface DetailsErrors {
   field: string;
   issue: string;
   value?: any;

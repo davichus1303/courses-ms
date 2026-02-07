@@ -42,7 +42,7 @@ export class CourseRepository {
    * @param params The parameters to filter Course documents.
    * @returns An array of Course documents matching the parameters.
    */
-  public async findByParams(params: any): Promise<Array<CourseDocument>> {
+  public async findByParams(params: Object): Promise<Array<CourseDocument>> {
     return CourseModel.find(params).exec();
   }
 }
