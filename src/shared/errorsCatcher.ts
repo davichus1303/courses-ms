@@ -34,11 +34,11 @@ export class ErrorsCatcher {
    * @returns An array of ErrorResponse objects for any type mismatches found.
    */
   private courseTypeAnalicer(objectToValidate: any): Array<DetailsErrors> {
-    const catchhedErrors: Array<DetailsErrors> = [];
+    const caughtErrors: Array<DetailsErrors> = [];
 
     for (const key in objectToValidate) {
         if (!ALLOWED_fIELDS.includes(key)) {
-            catchhedErrors.push({
+            caughtErrors.push({
                 field: key,
                 issue: `${UNEXPECTED_KEY_MESSAGE}${key}`,
                 value: objectToValidate[key],
@@ -48,13 +48,13 @@ export class ErrorsCatcher {
         switch (key) {
           case 'name':
             if (typeof objectToValidate[key] !== 'string') {
-              catchhedErrors.push({
+              caughtErrors.push({
                 field: key,
                 issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
                 value,
               });
             } else if (objectToValidate[key].trim().length === 0) {
-              catchhedErrors.push({
+              caughtErrors.push({
                 field: key,
                 issue: EMPTY_FIELD_MESSAGE,
                 value,
@@ -63,13 +63,13 @@ export class ErrorsCatcher {
             break;
             case 'company':
                 if (typeof objectToValidate[key] !== 'string') {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
                     value,
                   });
                 } else if (objectToValidate[key].trim().length === 0) {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: EMPTY_FIELD_MESSAGE,
                     value,
@@ -78,7 +78,7 @@ export class ErrorsCatcher {
                 break;
             case 'hours':
                 if (typeof objectToValidate[key] !== 'number') {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_NUMBER_MESSAGE}`,
                     value,
@@ -87,13 +87,13 @@ export class ErrorsCatcher {
                 break;
             case 'level':
                 if (typeof objectToValidate[key] !== 'string') {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
                     value,
                   });
                 } else if (objectToValidate[key].trim().length === 0) {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: EMPTY_FIELD_MESSAGE,
                     value,
@@ -105,8 +105,8 @@ export class ErrorsCatcher {
         }
     }
 
-    if (catchhedErrors.length > 0) {
-      return catchhedErrors;
+    if (caughtErrors.length > 0) {
+      return caughtErrors;
     }
     return [];
   }
