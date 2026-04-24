@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { CourseService } from '../service/course.service';
-import { COURSE_NOT_FOUND_MESSAGE, COURSEs_NOT_FOUND_MESSAGE } from '../constants/courses';
+import { COURSE_NOT_FOUND_MESSAGE, COURSES_NOT_FOUND_MESSAGE, COURSE_ID_REQUIRED_MESSAGE } from '../constants/courses';
 
 export class CourseController {
 
@@ -14,6 +14,27 @@ export class CourseController {
   public create = async (req: Request, res: Response): Promise<void> => {
     const course = await this.courseService.createCourse(req.body);
     res.status(201).json(course);
+  };
+
+  /**
+   * @description Deletes a Course document by its ID.
+   * @param req Express request object containing the course ID in the parameters.
+   * @param res Express response object used to send back the deleted course or a 404 error.
+   */
+  public delete = async (req: Request, res: Response): Promise<void> => {
+    const courseId = req.query.id?.toString();
+    
+    if (!courseId) {
+      res.status(400).json({ message: COURSE_ID_REQUIRED_MESSAGE });
+      return;
+    }
+    const course = await this.courseService.deleteCourse(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: COURSE_NOT_FOUND_MESSAGE });
+      return;
+    }
+    res.status(200).send({ message: 'Course deleted successfully' });
   };
 
   /**
@@ -33,7 +54,7 @@ export class CourseController {
       };
       const courses = await this.courseService.getCourseByParams(params);
       if (courses?.length === 0) {
-        res.status(404).json({ message: COURSEs_NOT_FOUND_MESSAGE });
+        res.status(404).json({ message: COURSES_NOT_FOUND_MESSAGE });
         return;
       }
       res.json(courses);
@@ -49,8 +70,29 @@ export class CourseController {
    * @param res Express response object used to send back the found course or a 404 error.
    */
   public findById = async (req: Request, res: Response): Promise<void> => {
-    const courseId = req.params.id;
+    const courseId = req.params.id.toString();
     const course = await this.courseService.getCourseById(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: COURSE_NOT_FOUND_MESSAGE });
+      return;
+    }
+
+    res.json(course);
+  };
+  /**
+   * @description Updates a Course document by its ID.
+   * @param req Express request object containing the course ID in the parameters and updated data in the body.
+   * @param res Express response object used to send back the updated course or a 404 error.
+   */
+  public update = async (req: Request, res: Response): Promise<void> => {
+    const courseId = req.query?.id?.toString();
+
+    if (!courseId) {
+      res.status(400).json({ message: COURSE_ID_REQUIRED_MESSAGE });
+      return;
+    }
+    const course = await this.courseService.updateCourse(courseId, req.body);
 
     if (!course) {
       res.status(404).json({ message: COURSE_NOT_FOUND_MESSAGE });

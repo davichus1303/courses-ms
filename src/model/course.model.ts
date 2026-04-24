@@ -16,8 +16,9 @@ const CourseSchema = new Schema<CourseDocument>(
     level: { type: String, required: true },
     createdDate: { type: Date, default: Date.now },
     updatedDate: { type: Date, default: Date.now },
-  },
-  { timestamps: true }
+    isDelete: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
+  }
 );
 
 export const CourseModel = model<CourseDocument>("Course", CourseSchema);
