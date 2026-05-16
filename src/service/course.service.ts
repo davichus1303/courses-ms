@@ -36,13 +36,37 @@ export class CourseService {
   }
 
   /**
+   * @description Deletes a Course document by its ID.
+   * @param id The ID of the Course document to delete.
+   * @returns The deleted Course document or null if not found.
+   */
+  public async deleteCourse(id: string): Promise<CourseDocument | null> {
+    const course = await this.courseRepository.findById(id);
+
+    if (!course) {
+      return null;
+    }
+    course.isDelete = true;
+    course.isActive = false;
+    course.updatedDate = new Date();
+
+    return this.courseRepository.updateById(id, course);
+  }
+
+  /**
    * @description Retrieves Course documents by their name.
    * @param name The name of the Course documents to retrieve.
    * @returns An array of Course documents matching the params or an empty array if none found.
    */
   public async getCourseByParams(params: Object): Promise<Array<CourseDocument>> {
     try {
-      return await this.courseRepository.findByParams(params);
+      const paramsWithFilters = {
+        ...params,
+        isActive: true,
+        isDelete: false
+      };
+
+      return await this.courseRepository.findByParams(paramsWithFilters);
     } catch (error) {
       throw error;
     }
@@ -61,8 +85,33 @@ export class CourseService {
    * @param id The ID of the Course document to retrieve.
    * @returns The Course document if found, otherwise null.
    */
-  public async getCourseById(id: any): Promise<CourseDocument | null> {
+  public async getCourseById(id: string): Promise<CourseDocument | null> {
     return this.courseRepository.findById(id);
+  }
+
+  /**
+   * @description Updates a Course document by its ID.
+   * @param {string} id The ID of the Course document to update.
+   * @param {CourseDocument} data The data to update the Course document with.
+   * @returns {Promise<CourseDocument | ErrorResponse>} The updated Course document if found, otherwise an ErrorResponse.
+   */
+  public async updateCourse(id: string, data: CourseDocument): Promise<CourseDocument | ErrorResponse> {
+    try {
+      const errors: Array<ErrorResponse> = this.validateCourseData([data]);
+      
+      if (errors.length > 0) {
+        return errors[0] as ErrorResponse;
+      }
+      
+      const existingCourse = await this.courseRepository.findById(id);
+      if (!existingCourse) {
+        throw { message: 'Course not found', status: 404 } as ErrorResponse;
+      }
+      
+      return (await this.courseRepository.updateById(id, data)) as CourseDocument;
+    } catch (error) {
+      return error as ErrorResponse;
+    }
   }
 
   /**
