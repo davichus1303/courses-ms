@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import { connectDatabase } from './config/database';
 import courseRoutes from './routes/course.routes';
 import companyRoutes from './routes/company.routes';
+import roleRoutes from './routes/Role.routes';
+
 dotenv.config();
 
 const app = express();
@@ -11,6 +13,7 @@ app.use(express.json());
 connectDatabase();
 app.use('/courses', courseRoutes);
 app.use('/companies', companyRoutes);
+app.use('/roles', roleRoutes);
 
 const PORT = process.env.PORT || 3000;
 
