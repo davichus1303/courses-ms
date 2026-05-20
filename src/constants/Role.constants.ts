@@ -16,6 +16,11 @@ export const ROLE_ISSUES = {
     ROLE_ID_FIELD: 'id',
     ROLE_REQUIRED_ID_ISSUE: 'Role id is required',
     ROLE_NOT_FOUND_ISSUE: 'Role not found',
+    PERMISSIONS_FIELD: 'permissions',
+    PERMISSIONS_UNIQUE: 'Permissions must be unique',
+    PERMISSIONS_TYPE: 'Permissions must be an array of objects',
+    PERMISSIONS_INVALID_FIELD: `permissions of role: `,
+    PERMISSIONS_INVALID: 'Permission must have pageName and actions',
     VALIDATION_FAILED: 'Validation failed',
 };
 
