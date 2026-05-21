@@ -85,7 +85,7 @@ export class RoleErrorHandler {
    */
   private isRolesUniqueInList(roles: RoleDocument[], roleItem: RoleDocument): DetailsErrors[] | null {
     const caughtDetailsErrors: DetailsErrors[] = [];
-    const hasDuplicate = roles.some(role => role.name === roleItem.name);
+    const hasDuplicate = roles.filter(role => role.name === roleItem.name).length > 1;
 
     if (hasDuplicate) {
       caughtDetailsErrors.push({
