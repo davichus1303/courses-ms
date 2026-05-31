@@ -16,13 +16,14 @@ import { Document, ObjectId } from 'mongoose';
  * @param {Date} updatedDate - The date the user was updated.
  */
 export interface UserDocument extends Document {
-  name: string;
-  email: string;
-  password: string;
-  companyOId: ObjectId;
-  roleOId: ObjectId;
-  isActive: boolean;
-  isDelete: boolean;
+  name?: string;
+  lastName?: string;
+  surName?: string;
+  email?: string;
+  companyOId?: ObjectId;
+  roleOId?: ObjectId;
+  isActive?: boolean;
+  isDelete?: boolean;
   createdDate?: Date;
   updatedDate?: Date;
 }
