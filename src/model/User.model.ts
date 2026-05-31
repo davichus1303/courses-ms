@@ -10,14 +10,18 @@ import { UserDocument } from '../interface/User.interface';
 const UserSchema: Schema<UserDocument> = new Schema<UserDocument>(
   {
     name: { type: String, required: true },
+    lastName: { type: String, required: true },
+    surName: { type: String, required: false },
     email: { type: String, required: true },
-    password: { type: String, required: true },
-    companyOId: { type: String, required: true },
-    roleOId: { type: String, required: true },
+    companyOId: { type: Schema.Types.ObjectId, required: true },
+    roleOId: { type: Schema.Types.ObjectId, required: true },
     createdDate: { type: Date, default: Date.now },
     updatedDate: { type: Date, default: Date.now },
+    isActive: { type: Boolean, default: true },
+    isDelete: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
 export const UserModel = model<UserDocument>("User", UserSchema);
+
