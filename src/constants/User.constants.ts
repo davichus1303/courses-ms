@@ -1,6 +1,8 @@
 export const USER_ISSUES = {
     USER_EXTRA_FIELD: "user has extra field",
     USER_ALREADY_EXISTS_IN_DATABASE: "user already exists in database",
+    USER_DELETED_SUCCESSFULLY: "user deleted successfully",
+    USER_NOT_DELETED: "user not deleted",
     USERS_HAS_ANY_ERRORS: "Users has any errors",
     USER_MISSING_FIELDS: "user missing fields",
     USER_MISSING_FIELDS_MESSAGE: "User missing required fields",
