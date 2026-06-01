@@ -22,7 +22,8 @@ export const USER_FIELDS = [
     "isDelete",
     "updatedDate",
     "createdDate",
-    "surName"
+    "surName",
+    "password"
 ];
 
 export const STATUS_HTTP = {

@@ -3,12 +3,12 @@ import { DetailsErrors } from "../interface/error.interface";
 import { USER_ISSUES, USER_FIELDS } from "../constants/User.constants";
 import { UserRepository } from "../repository/User.repository";
 import { AcceptedFields } from "../enums/users.enum";
+import { PasswordHelper } from "../helpers/Password.helper";
 
 export class UserErrorHandler {
     /**
      * @description Verifies if users have all required fields and correct types
      * @param {UserDocument[]} users The users to verify
-     * @param {boolean} isUpdate Whether this is an update operation
      * @returns {DetailsErrors[] | null} DetailsErrors if missing fields or wrong types, null otherwise
      */
     public async verifyUsersIntegrity(users: UserDocument[]): Promise<DetailsErrors[] | null> {
@@ -41,6 +41,7 @@ export class UserErrorHandler {
                 if (extraFieldsError) {
                     caughtDetailsErrors.push(...extraFieldsError);
                 }
+                user.passwordHash = user.passwordHash ? await this.cryptPassword(user.passwordHash) : undefined;
             }
         }
         
@@ -155,6 +156,15 @@ export class UserErrorHandler {
                         });
                     }
                     break;
+                case 'passwordHash':
+                    if (typeof user.passwordHash !== 'string') {
+                        caughtErrors.push({
+                            issue: USER_ISSUES.USER_TYPE_ERROR,
+                            value: user.passwordHash,
+                            field: fieldsUser
+                        });
+                    }
+                    break;
                 default:
                     break;
             }
@@ -180,5 +190,14 @@ export class UserErrorHandler {
             }
         });
         return caughtErrors.length > 0 ? caughtErrors : null;
+    }
+
+    /**
+     * @description Crypts the password
+     * @param {string} password The password to crypt
+     * @returns {Promise<string>} The crypted password
+     */
+    private async cryptPassword(password: string): Promise<string> {
+        return await PasswordHelper.hashPassword(password);
     }
 }

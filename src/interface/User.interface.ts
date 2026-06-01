@@ -19,7 +19,8 @@ export interface UserDocument extends Document {
   name?: string;
   lastName?: string;
   surName?: string;
-  email?: string;
+  email: string;
+  passwordHash?: string;
   companyOId?: ObjectId;
   roleOId?: ObjectId;
   isActive?: boolean;
