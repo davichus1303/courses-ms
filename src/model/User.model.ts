@@ -13,7 +13,7 @@ const UserSchema: Schema<UserDocument> = new Schema<UserDocument>(
     lastName: { type: String, required: true },
     surName: { type: String, required: false },
     email: { type: String, required: false },
-    passwordHash: { type: String, required: true },
+    password: { type: String, required: false },
     companyOId: { type: Schema.Types.ObjectId, required: true },
     roleOId: { type: Schema.Types.ObjectId, required: true },
     createdDate: { type: Date, default: Date.now },

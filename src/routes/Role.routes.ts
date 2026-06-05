@@ -1,8 +1,12 @@
 import { Router } from "express";
 import { RoleController } from "../controller/Role.controller";
+import { AuthMiddleware } from "../middleware/Auth.middleware";
 
 const router = Router();
 const controller = new RoleController();
+const authMiddleware = new AuthMiddleware();
+
+router.use(authMiddleware.verifyToken.bind(authMiddleware));
 
 router.post("/", controller.create);
 router.get("/", controller.find);

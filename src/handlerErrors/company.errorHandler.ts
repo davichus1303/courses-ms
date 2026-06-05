@@ -1,7 +1,10 @@
-import { COMPANY_ISSUES, ERRORS_CONSTANTS } from "../constants/Company.constants";
+import { ERRORS_CONSTANTS } from "../constants/Company.constants";
 import { DetailsErrors, ErrorResponse } from "../interface/error.interface";
+import { ErrorsCatcher } from "../shared/errorsCatcher";
 
 export class CompanyErrorHandler {
+
+  private errorsCatcher = new ErrorsCatcher();
 
   /**
    * @description Verifies the fields of a company object and returns an array of details errors if any.
@@ -11,7 +14,7 @@ export class CompanyErrorHandler {
   public verifyCompanyFields(companyObject: any): ErrorResponse | null {
     const caughtDetailsErrors: DetailsErrors[] = [];
     for (const key in companyObject) {
-      const companyFieldsErrors = this.verifyCompanyAllowedFields(companyObject[key]);
+      const companyFieldsErrors = this.errorsCatcher.scanForExtraFieldsInObject(companyObject[key], ERRORS_CONSTANTS.ALLOWED_FIELDS);
       const companyTypeErrors = this.verifyCompanyTypeFields(companyObject[key]);
       const companyValuesErrors = this.verifyFieldsHasValue(companyObject[key], caughtDetailsErrors);
 
@@ -138,28 +141,6 @@ export class CompanyErrorHandler {
           break;
         default:
           break;
-      }
-    }
-
-    if (detailsErrors.length > 0) {
-      return detailsErrors;
-    }
-    return null;
-  }
-  /**
-   * @description Verifies if the company object has allowed fields
-   * @param companyObject The company object to verify
-   * @returns An array of details errors if there are any, or null if there are no errors
-   */
-  private verifyCompanyAllowedFields(companyObject: any): DetailsErrors[] | null {
-    const detailsErrors: DetailsErrors[] = [];
-    for (const key in companyObject) {
-      if (!ERRORS_CONSTANTS.ALLOWED_FIELDS.includes(key)) {
-        detailsErrors.push({
-          field: key,
-          issue: `${ERRORS_CONSTANTS.FIELD_IS_NOT_ALLOWED}${key}`,
-          value: companyObject[key],
-        });
       }
     }
 

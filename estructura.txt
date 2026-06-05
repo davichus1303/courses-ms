@@ -1,0 +1,62 @@
+src
+├── app.ts
+├── config
+│   └── database.ts
+├── constants
+│   ├── Company.constants.ts
+│   ├── courses.ts
+│   ├── Role.constants.ts
+│   └── User.constants.ts
+├── controller
+│   ├── Company.controller.ts
+│   ├── course.controller.ts
+│   ├── Role.controller.ts
+│   └── User.controller.ts
+├── enums
+│   ├── course.enum.ts
+│   └── users.enum.ts
+├── handlerErrors
+│   ├── company.errorHandler.ts
+│   ├── Role.errorHandler.ts
+│   └── user.errorHandler.ts
+├── helpers
+│   ├── Jwt.helper.ts
+│   └── Password.helper.ts
+├── interface
+│   ├── Company.interface.ts
+│   ├── course.interface.ts
+│   ├── error.interface.ts
+│   ├── jwtpayload.interface.ts
+│   ├── Login.interface.ts
+│   ├── Permission.model.ts
+│   ├── PermissionPages.interface.ts
+│   ├── Role.interface.ts
+│   ├── RoleParams.interface.ts
+│   ├── User.interface.ts
+│   └── UsersParams.interface.ts
+├── model
+│   ├── Company.model.ts
+│   ├── course.model.ts
+│   ├── Role.model.ts
+│   └── User.model.ts
+├── repository
+│   ├── Company.repository.ts
+│   ├── course.repository.ts
+│   ├── Role.repository.ts
+│   └── User.repository.ts
+├── routes
+│   ├── company.routes.ts
+│   ├── course.routes.ts
+│   ├── Role.routes.ts
+│   └── User.routes.ts
+├── service
+│   ├── Company.service.ts
+│   ├── course.service.ts
+│   ├── Role.service.ts
+│   └── User.service.ts
+└── shared
+    ├── errorsCatcher.ts
+    └── interfaces
+        └── ParamsForUniqueLists.interface.ts
+
+14 directories, 46 files

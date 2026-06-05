@@ -1,11 +1,14 @@
 import { UserDocument } from "../interface/User.interface";
 import { DetailsErrors } from "../interface/error.interface";
-import { USER_ISSUES, USER_FIELDS } from "../constants/User.constants";
+import { USER_ISSUES, USER_FIELDS, USER_LIST_NAME, USER_UNIQUE_FIELD } from "../constants/User.constants";
 import { UserRepository } from "../repository/User.repository";
 import { AcceptedFields } from "../enums/users.enum";
-import { PasswordHelper } from "../helpers/Password.helper";
+import { ErrorsCatcher } from "../shared/errorsCatcher";
 
 export class UserErrorHandler {
+    private errorsCatcher = new ErrorsCatcher();
+    private userRepository = new UserRepository();
+
     /**
      * @description Verifies if users have all required fields and correct types
      * @param {UserDocument[]} users The users to verify
@@ -13,75 +16,50 @@ export class UserErrorHandler {
      */
     public async verifyUsersIntegrity(users: UserDocument[]): Promise<DetailsErrors[] | null> {
         const caughtDetailsErrors: DetailsErrors[] = [];
-        
+        const duplicatedUsersInList: DetailsErrors[] = this.errorsCatcher.verifyRepeatInList({
+            list: users,
+            listName: USER_LIST_NAME,
+            uniqueField: USER_UNIQUE_FIELD
+        });
+        caughtDetailsErrors.push(...duplicatedUsersInList);
+        const emails: string[] = users.map(user => user.email);
+        const searchParams = { email: { $in: emails } };
+        const existingUsers = await this.userRepository.findByParams(searchParams);
+        const existingEmails = new Set(
+            existingUsers.map(user => user.email)
+        );
+
         for (const user of users) {
-            const requiredFieldsError = this.verifyRequiredFields(user);
-            const userExists = await this.existsUserByEmail(user.email);
+          const requiredFieldsError = this.errorsCatcher.verifyRequiredFields(user, USER_ISSUES.USER_REQUIRED_FIELDS);
+        
+          if (requiredFieldsError) {
+            caughtDetailsErrors.push(...requiredFieldsError);
+          }
+          const userExistsInDatabase: boolean = existingEmails.has(user.email);
+
+          if (userExistsInDatabase) {
+            caughtDetailsErrors.push({
+                issue: USER_ISSUES.USER_ALREADY_EXISTS_IN_DATABASE,
+                field: USER_FIELDS[AcceptedFields.email],
+                value: user.email,
+            });
+          }
+
+          if (requiredFieldsError === null && !userExistsInDatabase) {
+            const typeOfFieldsError = this.verifyTypeOfFields(user);
             
-            if (requiredFieldsError) {
-                caughtDetailsErrors.push(...requiredFieldsError);
+            if (typeOfFieldsError) {
+                caughtDetailsErrors.push(...typeOfFieldsError);
             }
+            const extraFieldsError = this.errorsCatcher.scanForExtraFieldsInObject(user, USER_FIELDS);
 
-            if (userExists) {
-                caughtDetailsErrors.push({
-                    issue: USER_ISSUES.USER_ALREADY_EXISTS_IN_DATABASE,
-                    field: USER_FIELDS[AcceptedFields.email],
-                    value: user.email,
-                });
+            if (extraFieldsError) {
+                caughtDetailsErrors.push(...extraFieldsError);
             }
-
-            if (requiredFieldsError === null && !userExists) {
-                const typeOfFieldsError = this.verifyTypeOfFields(user);
-                
-                if (typeOfFieldsError) {
-                    caughtDetailsErrors.push(...typeOfFieldsError);
-                }
-                const extraFieldsError = this.scanForExtraFields(user);
-
-                if (extraFieldsError) {
-                    caughtDetailsErrors.push(...extraFieldsError);
-                }
-                user.passwordHash = user.passwordHash ? await this.cryptPassword(user.passwordHash) : undefined;
-            }
+          }
         }
         
         return caughtDetailsErrors.length > 0 ? caughtDetailsErrors : null;
-    }
-
-    /**
-     * @description Verifies if a user exists by email
-     * @param {string} email The email to verify
-     * @returns {Promise<boolean>} true if user exists, false otherwise
-     */
-    public async existsUserByEmail(email: string): Promise<boolean> {
-        try {
-            const userRepository = new UserRepository();
-            const user = await userRepository.findByParams({ email });
-
-            return user !== null && user.length > 0;
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    /**
-     * @description Verifies if a user has all required fields
-     * @param {UserDocument} user The user document to verify
-     * @returns {DetailsErrors[] | null} DetailsErrors if missing fields, null otherwise
-     */
-    private verifyRequiredFields(user: UserDocument): DetailsErrors[] | null {
-        const errors: DetailsErrors[] = [];
-        const requiredFields = USER_ISSUES.USER_REQUIRED_FIELDS;
-        requiredFields.forEach((field) => {
-            if (!(field in user)) {
-                errors.push({
-                    issue: USER_ISSUES.USER_MISSING_FIELDS,
-                    value: field,
-                    field: field
-                });
-            }
-        });
-        return errors.length > 0 ? errors : null;
     }
 
     /**
@@ -172,32 +150,4 @@ export class UserErrorHandler {
         return caughtErrors.length > 0 ? caughtErrors : null;
     }
 
-    /**
-     * @description Scans for extra fields in the user object
-     * @param {any} user The user object to scan
-     * @returns {DetailsErrors[] | null} DetailsErrors if extra fields found, null otherwise
-     */
-    private scanForExtraFields(user: any): DetailsErrors[] | null {
-        const caughtErrors: DetailsErrors[] = [];
-        const fieldsUser = Object.keys(user);
-        fieldsUser.forEach((field) => {
-            if (!USER_FIELDS.includes(field)) {
-                caughtErrors.push({
-                    issue: USER_ISSUES.USER_EXTRA_FIELD,
-                    value: user[field],
-                    field: field
-                });
-            }
-        });
-        return caughtErrors.length > 0 ? caughtErrors : null;
-    }
-
-    /**
-     * @description Crypts the password
-     * @param {string} password The password to crypt
-     * @returns {Promise<string>} The crypted password
-     */
-    private async cryptPassword(password: string): Promise<string> {
-        return await PasswordHelper.hashPassword(password);
-    }
 }
