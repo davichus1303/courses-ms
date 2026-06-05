@@ -20,7 +20,7 @@ export interface UserDocument extends Document {
   lastName?: string;
   surName?: string;
   email: string;
-  passwordHash?: string;
+  password?: string;
   companyOId?: ObjectId;
   roleOId?: ObjectId;
   isActive?: boolean;

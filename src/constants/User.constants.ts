@@ -23,7 +23,7 @@ export const USER_FIELDS = [
     "updatedDate",
     "createdDate",
     "surName",
-    "password"
+    "passwordHash"
 ];
 
 export const STATUS_HTTP = {
@@ -32,3 +32,6 @@ export const STATUS_HTTP = {
     NOT_FOUND: 404,
     INTERNAL_SERVER_ERROR: 500
 };
+
+export const USER_LIST_NAME = "users";
+export const USER_UNIQUE_FIELD = "email";

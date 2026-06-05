@@ -5,6 +5,7 @@ import { DetailsErrors } from "../interface/error.interface";
 import { ErrorResponse } from "../interface/error.interface";
 import { STATUS_HTTP, USER_ISSUES } from "../constants/User.constants";
 import { UsersParams } from "../interface/UsersParams.interface";
+import { PasswordHelper } from "../helpers/Password.helper";
 
 export class UserService {
     private userRepository = new UserRepository();
@@ -18,6 +19,10 @@ export class UserService {
     public async createUsers(users: UserDocument[]): Promise<UserDocument[]> {
         try {
             const caughtErrors: DetailsErrors[] = await this.userErrorHandler.verifyUsersIntegrity(users) || [];
+            const usersWithEncryptedPassword = await Promise.all(users.map(async user => ({
+                ...user,
+                password: user.password ? await this.encryptPassword(user.password) : undefined
+            })));
 
             if (caughtErrors.length > 0) {
                 const errorResponse: ErrorResponse = {
@@ -28,7 +33,7 @@ export class UserService {
                 throw errorResponse;
             }
 
-            return this.userRepository.create(users);
+            return this.userRepository.create(usersWithEncryptedPassword as UserDocument[]);
         } catch (error) {
             throw error;
         }
@@ -64,7 +69,7 @@ export class UserService {
      */
     public async getAllUsers(): Promise<Array<UserDocument>> {
         try {
-            return this.userRepository.findByParams({isActive: true, deleted: false});
+            return this.userRepository.findByParams({isActive: true, isDelete: false});
         } catch (error: any) {
             throw error;
         }
@@ -77,9 +82,11 @@ export class UserService {
      */
     public async getUsersByParams(params: UsersParams): Promise<Array<UserDocument>> {
         try {
-            const queryParams = this.buildQuery(params.wordForSearch || "");
-
-            return this.userRepository.findByParams(queryParams);
+            if (params.wordForSearch) {
+                const queryParams = this.buildQuery(params.wordForSearch || "");
+                return this.userRepository.findByParams(queryParams);
+            }
+            return [];
         } catch (error: any) {
             throw error;
         }
@@ -140,5 +147,14 @@ export class UserService {
             updatedDate: new Date(),
             surName: users.surName
         } as UserDocument;
+    }
+
+    /**
+     * @description Encrypts a password
+     * @param {string} password The password to encrypt
+     * @returns {Promise<string>} The encrypted password
+     */
+    private async encryptPassword(password: string): Promise<string> {
+        return await PasswordHelper.hashPassword(password);
     }
 }

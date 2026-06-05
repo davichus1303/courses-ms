@@ -5,6 +5,7 @@ import courseRoutes from './routes/course.routes';
 import companyRoutes from './routes/company.routes';
 import roleRoutes from './routes/Role.routes';
 import userRoutes from './routes/User.routes';
+import authRoutes from './routes/Auth.routes';
 import cors from 'cors';
 
 dotenv.config();
@@ -18,6 +19,7 @@ app.use('/courses', courseRoutes);
 app.use('/companies', companyRoutes);
 app.use('/roles', roleRoutes);
 app.use('/users', userRoutes);
+app.use('/auth', authRoutes);
 
 const PORT = process.env.PORT || 3000;
 
@@ -29,4 +31,5 @@ app.listen(PORT, () => {
   console.log('  GET /companies - Get all companies');
   console.log('  GET /roles - Get all roles');
   console.log('  GET /users - Get all users');
+  console.log('  POST /auth/login - Login');
 });
