@@ -134,11 +134,11 @@ export class UserErrorHandler {
                         });
                     }
                     break;
-                case 'passwordHash':
-                    if (typeof user.passwordHash !== 'string') {
+                case 'password':
+                    if (typeof user.password !== 'string') {
                         caughtErrors.push({
                             issue: USER_ISSUES.USER_TYPE_ERROR,
-                            value: user.passwordHash,
+                            value: user.password,
                             field: fieldsUser
                         });
                     }
