@@ -1,16 +1,15 @@
 import { Router } from "express";
-import { CourseController } from "../controller/course.controller";
+import { RoleController } from "../controller/Role.controller";
 import { AuthMiddleware } from "../middleware/Auth.middleware";
 
 const router = Router();
-const controller = new CourseController();
+const controller = new RoleController();
 const authMiddleware = new AuthMiddleware();
 
 router.use(authMiddleware.verifyToken.bind(authMiddleware));
 
 router.post("/", controller.create);
-router.get("/", controller.findAll);
-router.get("/:id", controller.findById);
+router.get("/", controller.find);
 router.put("/", controller.update);
 router.delete("/", controller.delete);
 

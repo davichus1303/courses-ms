@@ -13,11 +13,12 @@ const CourseSchema = new Schema<CourseDocument>(
     name: { type: String, required: true },
     company: { type: String, required: true },
     hours: { type: Number, required: true },
-    completedAt: { type: Date, required: true },
-    certificateUrl: { type: String },
-  level: { type: String, required: true },
-  },
-  { timestamps: true }
+    level: { type: String, required: true },
+    createdDate: { type: Date, default: Date.now },
+    updatedDate: { type: Date, default: Date.now },
+    isDelete: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
+  }
 );
 
 export const CourseModel = model<CourseDocument>("Course", CourseSchema);

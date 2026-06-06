@@ -1,6 +1,6 @@
 import { CourseRepository } from '../repository/course.repository';
 import { CourseDocument } from '../interface/course.interface';
-import { ErrorResponse } from '../interface/error.interface';
+import { DetailsErrors, ErrorResponse } from '../interface/error.interface';
 import { ErrorsCatcher } from '../shared/errorsCatcher';
 
 /**
@@ -21,12 +21,57 @@ export class CourseService {
    */
   public async createCourse(data: Array<CourseDocument>): Promise<Array<CourseDocument | ErrorResponse>> {
     const errors: Array<ErrorResponse> = this.validateCourseData(data);
+    
     if (errors.length > 0) {
       return errors;
     }
+
+    if (data.length > 1) {
+      const duplicatedErrors = await this.checkForDuplicateCourses(data);
+      if (duplicatedErrors.length > 0) {
+        return duplicatedErrors;
+      }
+    }
     return this.courseRepository.create(data);
   }
-  
+
+  /**
+   * @description Deletes a Course document by its ID.
+   * @param id The ID of the Course document to delete.
+   * @returns The deleted Course document or null if not found.
+   */
+  public async deleteCourse(id: string): Promise<CourseDocument | null> {
+    const course = await this.courseRepository.findById(id);
+
+    if (!course) {
+      return null;
+    }
+    course.isDelete = true;
+    course.isActive = false;
+    course.updatedDate = new Date();
+
+    return this.courseRepository.updateById(id, course);
+  }
+
+  /**
+   * @description Retrieves Course documents by their name.
+   * @param name The name of the Course documents to retrieve.
+   * @returns An array of Course documents matching the params or an empty array if none found.
+   */
+  public async getCourseByParams(params: Object): Promise<Array<CourseDocument>> {
+    try {
+      const paramsWithFilters = {
+        ...params,
+        isActive: true,
+        isDelete: false
+      };
+
+      return await this.courseRepository.findByParams(paramsWithFilters);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   /**
    * @description Retrieves all Course documents.
    * @returns An array of Course documents.
@@ -45,6 +90,31 @@ export class CourseService {
   }
 
   /**
+   * @description Updates a Course document by its ID.
+   * @param {string} id The ID of the Course document to update.
+   * @param {CourseDocument} data The data to update the Course document with.
+   * @returns {Promise<CourseDocument | ErrorResponse>} The updated Course document if found, otherwise an ErrorResponse.
+   */
+  public async updateCourse(id: string, data: CourseDocument): Promise<CourseDocument | ErrorResponse> {
+    try {
+      const errors: Array<ErrorResponse> = this.validateCourseData([data]);
+      
+      if (errors.length > 0) {
+        return errors[0] as ErrorResponse;
+      }
+      
+      const existingCourse = await this.courseRepository.findById(id);
+      if (!existingCourse) {
+        throw { message: 'Course not found', status: 404 } as ErrorResponse;
+      }
+      
+      return (await this.courseRepository.updateById(id, data)) as CourseDocument;
+    } catch (error) {
+      return error as ErrorResponse;
+    }
+  }
+
+  /**
    * @description Validates the course data before creation.
    * @param data Array of course data to validate
    * @throws Error if validation fails
@@ -60,5 +130,53 @@ export class CourseService {
   })
   return errors;
   }
+
+  /**
+   * @description Checks for duplicate courses in the provided data.
+   * @param data Array of course data to check for duplicates
+   * @returns An array of ErrorResponse objects if duplicates are found, otherwise an empty array.
+   */
+  private async checkForDuplicateCourses(data: Array<CourseDocument>): Promise<Array<ErrorResponse>> {
+    const duplicatedCourses = await this.findDuplicateCourses(data);
+    const details: Array<DetailsErrors> = [];
+    const foundErrorResponse: Array<ErrorResponse> = [];
+    if (duplicatedCourses.length > 0) {
+      duplicatedCourses.forEach(course => {
+        details.push({
+          field: 'name',
+          issue: 'Duplicate course name',
+          value: course.name
+        });
+      });
+      foundErrorResponse.push({
+        status: 400,
+        message: 'Duplicate courses found',
+        details
+      });
+    }
+    return foundErrorResponse;
+  }
+
+  /**
+   * @description Checks if any Course documents exist matching the provided parameters.
+   * @param params The parameters to filter Course documents.
+   * @returns True if matching Course documents exist, otherwise false.
+   */
+  private async findDuplicateCourses(params: Array<CourseDocument>): Promise<Array<CourseDocument>> {
+    const duplicatedCourses: Array<CourseDocument> = [];
+    try {
+        for (const param of params) {
+          const { _id, hours, createdDate, updatedDate, ...cleanedParam } = param;
+          const foundCourse = await this.courseRepository.findByParams(cleanedParam);
+          if (foundCourse.length > 0) {
+            duplicatedCourses.push(...foundCourse);
+          }
+        }
+    } catch (error) {
+      return duplicatedCourses;
+    }
+    return duplicatedCourses;
+  }
+
 
 }

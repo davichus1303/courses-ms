@@ -1,10 +1,96 @@
-import { detailsErrors, ErrorResponse } from '../interface/error.interface';
-import { ALLOWED_fIELDS, INVALID_TYPE_FIELD_MESSAGE, EXPECTED_STRING_MESSAGE, EXPECTED_NUMBER_MESSAGE, SOME_INVALID_FIELD_MESSAGE, UNEXPECTED_KEY_MESSAGE, EMPTY_FIELD_MESSAGE} from '../constants/courses';
+import { DetailsErrors, ErrorResponse } from '../interface/error.interface';
+import {
+  ALLOWED_fIELDS,
+  INVALID_TYPE_FIELD_MESSAGE,
+  DUPLICATE_VALUES_MESSAGE,
+  EXPECTED_STRING_MESSAGE,
+  EXPECTED_NUMBER_MESSAGE,
+  SOME_INVALID_FIELD_MESSAGE,
+  UNEXPECTED_KEY_MESSAGE,
+  EMPTY_FIELD_MESSAGE,
+  REQUIRED_FIELD_MESSAGE,
+} from '../constants/courses';
 import { CourseErrorEnum } from '../enums/course.enum';
+import { ParamsForUniqueLists } from './interfaces/ParamsForUniqueLists.interface';
 /**
  * @description Utility class for catching errors in asynchronous functions.
  **/
 export class ErrorsCatcher {
+
+  /**
+   * @description Verifies that there are no duplicate values in a list
+   * @param {ParamsForUniqueLists} params The parameters for the verification
+   * @returns {Array<DetailsErrors>} An array of DetailsErrors for any duplicate values
+   */
+  public verifyRepeatInList(params: ParamsForUniqueLists): Array<DetailsErrors> {
+    const { list, listName, uniqueField } = params;
+    const caughtErrors: Array<DetailsErrors> = [];
+    const processedValues = new Set<string>();
+    const duplicatedValues = new Set<string>();
+
+    for (const item of list) {
+      const value = String(item[uniqueField]);
+
+      if (processedValues.has(value)) {
+          duplicatedValues.add(value);
+      }
+      processedValues.add(value);
+    }
+
+    if (duplicatedValues.size > 0) {
+      caughtErrors.push({
+          field: listName,
+          issue: `${listName} ${DUPLICATE_VALUES_MESSAGE}`,
+          value: Array.from(duplicatedValues)
+      });
+    }
+
+    return caughtErrors;
+  }
+
+  /**
+   * @description Scans for extra fields in an object
+   * @param {Record<string, any>} objectToValidate The object to validate
+   * @param {string[]} allowedFields The array of allowed field names
+   * @returns {Array<DetailsErrors>} An array of DetailsErrors for any extra fields
+   */
+  public scanForExtraFieldsInObject(objectToValidate: Record<string, any>, allowedFields: string[]): Array<DetailsErrors> {
+    const caughtErrors: Array<DetailsErrors> = [];
+    const fields = Object.keys(objectToValidate);
+    fields.forEach((field) => {
+      if (!allowedFields.includes(field)) {
+        caughtErrors.push({
+          field,
+          issue: `${UNEXPECTED_KEY_MESSAGE}${field}`,
+          value: objectToValidate[field],
+        });
+      }
+    });
+
+    return caughtErrors || [];
+  }
+
+  /**
+   * @description Verifies that all required fields are present in the object.
+   * @param {Record<string, any>} objectToValidate The object to validate.
+   * @param {string[]} requiredFields The array of required field names.
+   * @returns {Array<DetailsErrors>} An array of DetailsErrors for any missing fields.
+   */
+  public verifyRequiredFields(objectToValidate: Record<string, any>, requiredFields: string[]): Array<DetailsErrors> {
+    const caughtErrors: Array<DetailsErrors> = [];
+    for (const field of requiredFields) {
+      if (!objectToValidate[field]) {
+        caughtErrors.push({
+          field,
+          issue: `${REQUIRED_FIELD_MESSAGE}${field}`,
+          value: objectToValidate[field],
+        });
+      }
+    }
+
+    return caughtErrors || [];
+  }
+
   /**
    * @description Analyzes an object to validate its properties against a specified interface.
    * @param objectToValidate The object to validate.
@@ -33,12 +119,12 @@ export class ErrorsCatcher {
    * @param objectToValidate The object to validate against the Course interface.
    * @returns An array of ErrorResponse objects for any type mismatches found.
    */
-  private courseTypeAnalicer(objectToValidate: any): Array<detailsErrors> {
-    const catchhedErrors: Array<detailsErrors> = [];
+  private courseTypeAnalicer(objectToValidate: any): Array<DetailsErrors> {
+    const caughtErrors: Array<DetailsErrors> = [];
 
     for (const key in objectToValidate) {
         if (!ALLOWED_fIELDS.includes(key)) {
-            catchhedErrors.push({
+            caughtErrors.push({
                 field: key,
                 issue: `${UNEXPECTED_KEY_MESSAGE}${key}`,
                 value: objectToValidate[key],
@@ -48,13 +134,13 @@ export class ErrorsCatcher {
         switch (key) {
           case 'name':
             if (typeof objectToValidate[key] !== 'string') {
-              catchhedErrors.push({
+              caughtErrors.push({
                 field: key,
                 issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
                 value,
               });
             } else if (objectToValidate[key].trim().length === 0) {
-              catchhedErrors.push({
+              caughtErrors.push({
                 field: key,
                 issue: EMPTY_FIELD_MESSAGE,
                 value,
@@ -63,13 +149,13 @@ export class ErrorsCatcher {
             break;
             case 'company':
                 if (typeof objectToValidate[key] !== 'string') {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
                     value,
                   });
                 } else if (objectToValidate[key].trim().length === 0) {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: EMPTY_FIELD_MESSAGE,
                     value,
@@ -78,46 +164,22 @@ export class ErrorsCatcher {
                 break;
             case 'hours':
                 if (typeof objectToValidate[key] !== 'number') {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_NUMBER_MESSAGE}`,
                     value,
                   });
                 }
                 break;
-            case 'completedAt':
-                if (typeof objectToValidate[key] !== 'string') {
-                  catchhedErrors.push({
-                    field: key,
-                    issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
-                    value,
-                  });
-                }
-                break;
-            case 'certificateUrl':
-                if (typeof objectToValidate[key] !== 'string') {
-                    catchhedErrors.push({
-                        field: key,
-                        issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
-                        value,
-                    });
-                } else if (objectToValidate[key].trim().length === 0) {
-                    catchhedErrors.push({
-                        field: key,
-                        issue: EMPTY_FIELD_MESSAGE,
-                        value,
-                    });
-                }
-                break;
             case 'level':
                 if (typeof objectToValidate[key] !== 'string') {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: `${INVALID_TYPE_FIELD_MESSAGE}${key}, ${EXPECTED_STRING_MESSAGE}`,
                     value,
                   });
                 } else if (objectToValidate[key].trim().length === 0) {
-                  catchhedErrors.push({
+                  caughtErrors.push({
                     field: key,
                     issue: EMPTY_FIELD_MESSAGE,
                     value,
@@ -129,8 +191,8 @@ export class ErrorsCatcher {
         }
     }
 
-    if (catchhedErrors.length > 0) {
-      return catchhedErrors;
+    if (caughtErrors.length > 0) {
+      return caughtErrors;
     }
     return [];
   }

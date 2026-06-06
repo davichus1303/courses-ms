@@ -17,6 +17,8 @@ export interface CourseDocument extends Document {
   company: string;
   hours: number;
   level: string;
-  completedAt: Date;
-  certificateUrl?: string;
+  isDelete: boolean;
+  isActive: boolean;
+  createdDate?: Date;
+  updatedDate?: Date;
 }

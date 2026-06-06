@@ -25,7 +25,7 @@ export class CourseRepository {
    * @returns An array of Course documents.
    */
   public async findAll(): Promise<Array<CourseDocument>> {
-    return CourseModel.find().exec();
+    return CourseModel.find({ isDelete: false }).exec();
   }
 
   /**
@@ -34,7 +34,8 @@ export class CourseRepository {
    * @returns The Course document if found, otherwise null.
    */
   public async findById(id: string): Promise<CourseDocument | null> {
-    return CourseModel.findById(id).exec();
+    return CourseModel.findOne(
+      {_id: id, isDelete: false}).exec();
   }
 
   /**
@@ -42,7 +43,17 @@ export class CourseRepository {
    * @param params The parameters to filter Course documents.
    * @returns An array of Course documents matching the parameters.
    */
-  public async findByParams(params: any): Promise<Array<CourseDocument>> {
+  public async findByParams(params: Object): Promise<Array<CourseDocument>> {
     return CourseModel.find(params).exec();
+  }
+
+  /**
+   * @description Updates a Course document by its ID.
+   * @param id The ID of the Course document to update.
+   * @param data The data to update the Course document with.
+   * @returns The updated Course document if found, otherwise null.
+   */
+  public async updateById(id: string, data: CourseDocument): Promise<CourseDocument | null> {
+    return CourseModel.findByIdAndUpdate(id, data, { new: true }).exec();
   }
 }
