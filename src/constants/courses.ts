@@ -25,3 +25,4 @@ export const INVALID_TYPE_FIELD_MESSAGE = 'Invalid type for property ';
 export const REQUIRED_FIELD_MESSAGE = 'Field is required. ';
 export const SOME_INVALID_FIELD_MESSAGE = 'One or more fields are invalid.';
 export const UNEXPECTED_KEY_MESSAGE = 'Unexpected field found in the object.';
+export const DELETE_SUCCESS_MESSAGE = 'Course deleted successfully.';
