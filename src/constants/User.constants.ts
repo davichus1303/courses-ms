@@ -23,7 +23,7 @@ export const USER_FIELDS = [
     "updatedDate",
     "createdDate",
     "surName",
-    "passwordHash"
+    "password"
 ];
 
 export const STATUS_HTTP = {
