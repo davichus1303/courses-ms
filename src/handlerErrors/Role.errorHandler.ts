@@ -62,9 +62,9 @@ export class RoleErrorHandler {
    * @param {string} roleName - The name of the role.
    * @returns An array of details errors if any, or null if no errors found.
    */
-  private verifyTypeOfPermissions(permissions: Object[], roleName: string): DetailsErrors[] | null {
+  private verifyTypeOfPermissions(permissions: Object[] | undefined, roleName: string): DetailsErrors[] | null {
     const caughtErrors: DetailsErrors[] = [];
-    permissions.forEach(permission => {
+    permissions?.forEach(permission => {
       const keys = Object.keys(permission);
 
       if (keys.length !== 2 || !keys.includes('pageName') || !keys.includes('actions')) {

@@ -7,6 +7,21 @@ export class RoleController {
   private readonly roleService = new RoleService();
 
   /**
+   * @description Finds all active roles except the root role.
+   * @param req Request object
+   * @param res Response object
+   * @returns Found roles
+   */
+  public findAllActiveSimpleRoles = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const roles = await this.roleService.findAllActiveSimpleRoles();
+      res.status(200).json(roles);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * @description Creates a new role
    * @param req Request object
    * @param res Response object
