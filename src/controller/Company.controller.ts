@@ -44,6 +44,21 @@ export class CompanyController {
   }
 
   /**
+   * @description Method for retrieving all active companies.
+   * @param req Express request object.
+   * @param res Express response object.
+   * @returns Promise<void>
+   */
+  public getSimpleActiveCompany = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const companies = await this.companyService.getSimpleActiveCompany();
+      res.json(companies);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * @description Method for creating a new company.
    * @param req Express request object.
    * @param res Express response object.

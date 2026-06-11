@@ -18,6 +18,19 @@ export class CompanyService {
   private readonly companyErrorHandler = new CompanyErrorHandler();
 
   /**
+   * @description Retrieves all active Company documents from the database.
+   * @returns An array of active Company documents.
+   */
+  public async getSimpleActiveCompany(): Promise<Array<Pick<CompanyDocument, 'name' | '_id'>>> {
+    try {
+      const companies = await this.findByParams({ isActive: true, isDeleted: false });
+      return this.mapSimpleActiveCompany(companies);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * @description Creates a list of Company documents.
    * @param data Array of company data to create new Company documents
    * @returns An array of created Company documents.
@@ -158,6 +171,18 @@ export class CompanyService {
     } catch (error) {
       throw error;
     }
+  }
+
+  /**
+   * @description Maps a Company document to a simplified object with only _id, name, and isActive.
+   * @param {CompanyDocument[]} company The Company document to map.
+   * @returns {Pick<CompanyDocument, '_id' | 'name'>[]} The mapped Company document.
+   */
+  private mapSimpleActiveCompany(company: CompanyDocument[]): Pick<CompanyDocument, '_id' | 'name'>[] {
+    return company.map(c => ({
+      _id: c._id,
+      name: c.name,
+    }));
   }
 
   /**
