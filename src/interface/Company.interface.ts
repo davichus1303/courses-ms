@@ -23,14 +23,14 @@ import { Document } from 'mongoose';
  */
 export interface CompanyDocument extends Document {
   name: string;
-  description: string;
-  numberEmployees: number;
-  phone: string;
-  email: string;
-  address: string;
-  website: string;
-  principalContact: string;
-  principalContactPhone: string;
+  description?: string;
+  numberEmployees?: number;
+  phone?: string;
+  email?: string;
+  address?: string;
+  website?: string;
+  principalContact?: string;
+  principalContactPhone?: string;
   createdDate?: Date;
   updatedDate?: Date;
   isDeleted?: boolean;
