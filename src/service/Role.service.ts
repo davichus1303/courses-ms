@@ -3,7 +3,7 @@ import { RoleDocument } from '../interface/Role.interface';
 import { RoleErrorHandler } from '../handlerErrors/Role.errorHandler';
 import { RoleParams } from '../interface/RoleParams.interface';
 import { DetailsErrors, ErrorResponse } from '../interface/error.interface';
-import { ROLE_ISSUES, ROLE_ERRORS_STATUS_CODES } from '../constants/Role.constants';
+import { ROLE_ISSUES, ROLE_ERRORS_STATUS_CODES, ROOT_ROLE_NAME } from '../constants/Role.constants';
 
 /**
  * @description Service class for managing role operations.
@@ -11,6 +11,31 @@ import { ROLE_ISSUES, ROLE_ERRORS_STATUS_CODES } from '../constants/Role.constan
 export class RoleService {
   private readonly roleRepository = new RoleRepository();
   private readonly roleErrorHandler = new RoleErrorHandler();
+
+  /**
+   * @description Finds all active roles except the root role.
+   * @returns A promise that resolves to an array of role documents.
+   */
+  public async findAllActiveSimpleRoles(): Promise<Pick<RoleDocument, '_id' | 'name'>[]> {
+    try {
+      const params: RoleParams = {
+        isActive: true,
+        isDelete: false,
+        name: { $ne: ROOT_ROLE_NAME },
+      };
+      const roles = await this.findByParams(params);
+
+      return this.mapRoleToSimpleRole(roles);
+    } catch (error) {
+      const errorResponse: ErrorResponse = {
+        status: ROLE_ERRORS_STATUS_CODES.VALIDATION_FAILED,
+        message: (error as Error).message,
+        details: [],
+      };
+
+      throw errorResponse;
+    }
+  }
 
   /**
    * @description Creates a new role document in the database.
@@ -23,7 +48,7 @@ export class RoleService {
 
       if (caughtErrors && caughtErrors.length > 0) {
         const errorResponse: ErrorResponse = {
-          status: 400,
+          status: ROLE_ERRORS_STATUS_CODES.VALIDATION_FAILED,
           message: ROLE_ISSUES.VALIDATION_FAILED,
           details: caughtErrors,
         };
@@ -196,5 +221,17 @@ export class RoleService {
 
       throw errorResponse;
     }
+  }
+
+  /**
+   * @description Maps role documents to a simplified format.
+   * @param {RoleDocument[]} roles - The roles to map.
+   * @returns A promise that resolves to an array of simplified role objects.
+   */
+  private mapRoleToSimpleRole(roles: RoleDocument[]): Pick<RoleDocument, '_id' | 'name'>[] {
+    return roles.map((role) => ({
+      _id: role._id,
+      name: role.name,
+    }));
   }
 }
