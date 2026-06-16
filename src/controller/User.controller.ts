@@ -13,7 +13,7 @@ export class UserController {
      */
     public createUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const users = req.body;
+            const users = Array.isArray(req.body) ? req.body : [req.body];
             const createdUsers = await this.userService.createUsers(users);
             res.status(201).json(createdUsers);
         } catch (error: any) {
