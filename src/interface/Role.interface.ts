@@ -6,10 +6,10 @@ import { PermissionPages } from './PermissionPages.interface';
  */
 export interface RoleDocument extends Document {
   name: string;
-  permissions: Array<PermissionPages>;
-  isActive: boolean;
-  isDelete : boolean;
-  isDefault: boolean;
+  permissions?: Array<PermissionPages>;
+  isActive?: boolean;
+  isDelete?: boolean;
+  isDefault?: boolean;
   createdDate?: Date;
   updatedDate?: Date;
 }

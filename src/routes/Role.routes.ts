@@ -6,8 +6,11 @@ const router = Router();
 const controller = new RoleController();
 const authMiddleware = new AuthMiddleware();
 
-router.use(authMiddleware.verifyToken.bind(authMiddleware));
+// Public routes
+router.get("/simple-active", controller.findAllActiveSimpleRoles);
 
+// Protected routes
+router.use(authMiddleware.verifyToken.bind(authMiddleware));
 router.post("/", controller.create);
 router.get("/", controller.find);
 router.put("/", controller.update);

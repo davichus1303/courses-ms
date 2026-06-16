@@ -57,3 +57,4 @@ export const ROLE_ERROR_MESSAGES_CONTROLLER = {
     ID_REQUIRED: 'Id is required',
     INTERNAL_SERVER_ERROR: 'Internal server error',
 };
+export const ROOT_ROLE_NAME = 'root';
